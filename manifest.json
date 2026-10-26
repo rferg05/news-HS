@@ -1,0 +1,175 @@
+{
+  "id": "news-feed",
+  "name": "News",
+  "version": "1.0.0",
+  "description": "One news story at a time, large enough to read across the room: The Atlantic, Ground News (with its Left / Center / Right coverage bar and Blindspots) and other publishers, taking turns, each with a QR code that opens the story on a phone.",
+  "author": "Ryan",
+  "license": "MIT",
+  "minAppVersion": "1.13.0",
+  "moduleType": "news-feed",
+  "category": "Information",
+  "icon": "Newspaper",
+  "defaultConfig": {
+    "atlantic": ["all"],
+    "ground": ["top"],
+    "groundTopics": "",
+    "publishers": [],
+    "rotateSeconds": 20,
+    "photo": "auto",
+    "summarySentences": 2,
+    "coverageBar": true,
+    "maxAgeHours": 72,
+    "perFeed": 10,
+    "hideWords": "",
+    "qr": true,
+    "qrSize": "medium"
+  },
+  "defaultSize": {
+    "w": 960,
+    "h": 540
+  },
+  "defaultStyle": {
+    "fontSize": 18,
+    "padding": 0,
+    "borderRadius": 12,
+    "backgroundColor": "rgba(0, 0, 0, 0.35)"
+  },
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "atlantic": {
+        "type": "array",
+        "title": "The Atlantic",
+        "description": "Sections to show. Headlines are free; the QR code opens the full story on a phone signed in to your subscription.",
+        "enum": ["all", "best-of", "politics", "ideas", "international", "national", "business", "technology", "science", "health", "culture", "books"],
+        "enumLabels": ["Latest", "Best of", "Politics", "Ideas", "Global", "U.S.", "Economy", "Technology", "Science", "Health", "Culture", "Books"],
+        "ui:widget": "multiselect",
+        "ui:group": "Sources"
+      },
+      "ground": {
+        "type": "array",
+        "title": "Ground News",
+        "description": "Each story shows how much of its coverage comes from Left, Center and Right outlets. Blindspot: stories one side barely covers.",
+        "enum": ["top", "blindspot"],
+        "enumLabels": ["Top stories", "Blindspot"],
+        "ui:widget": "multiselect",
+        "ui:group": "Sources"
+      },
+      "groundTopics": {
+        "type": "string",
+        "title": "Ground News topics",
+        "description": "Optional. Topics to follow, separated by commas: paste the link from a topic page (ground.news/interest/…) or type its name, e.g. chicago-bears, artificial-intelligence.",
+        "ui:widget": "text",
+        "ui:placeholder": "https://ground.news/interest/…",
+        "ui:group": "Sources"
+      },
+      "publishers": {
+        "type": "array",
+        "title": "Other publishers",
+        "enum": ["nyt", "nyt-world", "ap", "reuters", "npr", "bbc", "bbc-world", "guardian", "pbs", "abc", "cbs", "ars", "verge", "wired", "espn"],
+        "enumLabels": ["New York Times", "NYT World", "Associated Press", "Reuters", "NPR", "BBC News", "BBC World", "The Guardian (US)", "PBS News", "ABC News", "CBS News", "Ars Technica", "The Verge", "Wired", "ESPN"],
+        "ui:widget": "multiselect",
+        "ui:group": "Sources"
+      },
+      "rotateSeconds": {
+        "type": "number",
+        "title": "Next story every (seconds)",
+        "description": "Sources take turns: one story from each, then the next from each.",
+        "minimum": 5,
+        "maximum": 300,
+        "ui:widget": "slider",
+        "ui:step": 5,
+        "ui:group": "Display"
+      },
+      "photo": {
+        "type": "string",
+        "title": "Story photo",
+        "description": "Automatic puts the photo beside the text in a wide module and above it in a tall one.",
+        "enum": ["auto", "side", "top", "background", "off"],
+        "enumLabels": ["Automatic", "Beside the text", "Above the text", "Behind the text", "No photos"],
+        "ui:widget": "select",
+        "ui:group": "Display"
+      },
+      "summarySentences": {
+        "type": "number",
+        "title": "Summary sentences",
+        "description": "0 shows the headline alone. Fewer sentences means larger text.",
+        "minimum": 0,
+        "maximum": 6,
+        "ui:widget": "slider",
+        "ui:step": 1,
+        "ui:group": "Display"
+      },
+      "coverageBar": {
+        "type": "boolean",
+        "title": "Ground News coverage bar",
+        "description": "The Left / Center / Right split under Ground News headlines.",
+        "ui:widget": "toggle",
+        "ui:group": "Display"
+      },
+      "maxAgeHours": {
+        "type": "number",
+        "title": "Hide stories older than (hours)",
+        "description": "0 keeps stories of any age.",
+        "minimum": 0,
+        "maximum": 168,
+        "ui:widget": "slider",
+        "ui:step": 6,
+        "ui:group": "Filters"
+      },
+      "perFeed": {
+        "type": "number",
+        "title": "Stories from each source",
+        "minimum": 1,
+        "maximum": 50,
+        "ui:widget": "slider",
+        "ui:step": 1,
+        "ui:group": "Filters"
+      },
+      "hideWords": {
+        "type": "string",
+        "title": "Hide stories with these words",
+        "description": "Separated by commas. Checks the headline and summary.",
+        "ui:widget": "text",
+        "ui:group": "Filters"
+      },
+      "qr": {
+        "type": "boolean",
+        "title": "QR code to the story",
+        "description": "Scan it with a phone camera to open the story.",
+        "ui:widget": "toggle",
+        "ui:group": "QR code"
+      },
+      "qrSize": {
+        "type": "string",
+        "title": "QR code size",
+        "enum": ["small", "medium", "large"],
+        "enumLabels": ["Small", "Medium", "Large"],
+        "ui:widget": "select",
+        "ui:group": "QR code"
+      }
+    }
+  },
+  "allowedDomains": [
+    "www.theatlantic.com",
+    "ground.news",
+    "rss.nytimes.com",
+    "news.google.com",
+    "feeds.npr.org",
+    "feeds.bbci.co.uk",
+    "www.theguardian.com",
+    "www.pbs.org",
+    "abcnews.com",
+    "www.cbsnews.com",
+    "feeds.arstechnica.com",
+    "www.theverge.com",
+    "www.wired.com",
+    "www.espn.com"
+  ],
+  "exports": {
+    "component": "default"
+  },
+  "dataRequirements": [],
+  "prefetchUrl": null,
+  "permissions": ["network"]
+}

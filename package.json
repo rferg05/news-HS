@@ -1,0 +1,26 @@
+{
+  "name": "news-feed",
+  "version": "1.0.0",
+  "description": "Home Screens plugin: one news story at a time, large enough to read across the room, from The Atlantic, Ground News (with its coverage bias bar) and other publishers, each with a QR code to the story",
+  "license": "MIT",
+  "scripts": {
+    "preview": "vite --config dev/vite.config.ts",
+    "build": "vite build",
+    "typecheck": "tsc -p .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "qrcode-generator": "^2.0.4"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "jsdom": "^26.1.0",
+    "jsqr": "^1.4.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "typescript": "^5.9.3",
+    "vite": "^6.4.5",
+    "vitest": "^4.1.12"
+  }
+}
