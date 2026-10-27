@@ -3,7 +3,7 @@ import type { CSSProperties } from 'react';
 import type { PluginComponentProps } from './hs-plugin';
 import { hostFrameStyle } from './host-style';
 import { readConfig } from './config';
-import type { Config } from './config';
+import type { Config, PhotoFit } from './config';
 import type { Coverage, StoryImage } from './feed';
 import { useFitFontSize } from './fit';
 import { arrange, photoSize, qrPixels } from './layout';
@@ -141,23 +141,56 @@ function QrCode({ url, px }: { url: string; px: number }) {
 /** Pictures that wouldn't load, so a story that comes back round goes
  *  straight to its text-only layout. */
 const brokenImages = new Set<string>();
+/** Each photo's shape (width / height), learned when it loads, so its frame
+ *  fits it, and fits at once when the story comes back round. */
+const photoRatios = new Map<string, number>();
+/** Until a photo has loaded: the usual shape of a news photo. */
+const DEFAULT_RATIO = 1.6;
 
-/** The story's photo, falling back to the feed's own URL if the resized one
- *  fails, and telling the panel when neither loads. */
-function Photo({ image, style, onBroken }: { image: StoryImage; style: CSSProperties; onBroken: () => void }) {
+const fill: CSSProperties = { position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block' };
+
+/** The story's photo in its frame. Whole: all of the photo, any space it
+ *  leaves filled with a blurred, darkened copy of it rather than bars. Fill:
+ *  cropped to the frame. Falls back to the feed's own URL if the resized one
+ *  fails, and tells the panel the photo's shape, or that neither loads. */
+function Photo({ image, fit, align, style, onRatio, onBroken }: {
+  image: StoryImage;
+  fit: PhotoFit;
+  /** Where a whole photo sits when the frame is larger than it. */
+  align?: string;
+  style: CSSProperties;
+  onRatio: (ratio: number) => void;
+  onBroken: () => void;
+}) {
   const [src, setSrc] = useState(image.src);
   useEffect(() => setSrc(image.src), [image.src]);
+  const whole = fit === 'whole';
   return (
-    <img
-      src={src}
-      alt=""
-      referrerPolicy="no-referrer"
-      onError={() => {
-        if (image.fallback && src !== image.fallback) setSrc(image.fallback);
-        else { brokenImages.add(image.src); onBroken(); }
-      }}
-      style={{ display: 'block', objectFit: 'cover', objectPosition: 'center 30%', ...style }}
-    />
+    <div style={{ position: 'relative', overflow: 'hidden', ...style }}>
+      {whole && (
+        <img
+          src={src}
+          alt=""
+          aria-hidden
+          referrerPolicy="no-referrer"
+          style={{ ...fill, objectFit: 'cover', filter: 'blur(24px) brightness(0.5)', transform: 'scale(1.15)' }}
+        />
+      )}
+      <img
+        src={src}
+        alt=""
+        referrerPolicy="no-referrer"
+        onLoad={(e) => {
+          const { naturalWidth: nw, naturalHeight: nh } = e.currentTarget;
+          if (nw > 0 && nh > 0) onRatio(nw / nh);
+        }}
+        onError={() => {
+          if (image.fallback && src !== image.fallback) setSrc(image.fallback);
+          else { brokenImages.add(image.src); onBroken(); }
+        }}
+        style={{ ...fill, objectFit: whole ? 'contain' : 'cover', objectPosition: whole ? (align ?? 'center') : 'center 30%' }}
+      />
+    </div>
   );
 }
 
@@ -307,9 +340,14 @@ function StoryPanel(props: StoryProps) {
   const { story, cfg, w, h } = props;
   const [broken, setBroken] = useState(() => !!story.image && brokenImages.has(story.image.src));
   const image = broken ? null : story.image;
-  const a: Arrangement = arrange(cfg.photo, w, h, !!image);
-  const photo = photoSize(a, w, h);
+  const [ratio, setRatio] = useState(() => (story.image && photoRatios.get(story.image.src)) || DEFAULT_RATIO);
+  const a: Arrangement = arrange(cfg.photo, w, h, !!image, ratio);
+  const photo = photoSize(a, w, h, ratio);
   const markBroken = () => setBroken(true);
+  const learnRatio = (r: number) => {
+    if (story.image) photoRatios.set(story.image.src, r);
+    if (Math.abs(r - ratio) > 0.01) setRatio(r);
+  };
 
   if (a === 'background' && image) {
     const pad = panelPad(w, h);
@@ -317,7 +355,8 @@ function StoryPanel(props: StoryProps) {
     const textH = Math.round(h * 0.64);
     return (
       <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
-        <Photo image={image} onBroken={markBroken} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
+        {/* A whole photo sits at the top, clear of the text over the bottom. */}
+        <Photo image={image} fit={cfg.photoFit} align="center top" onRatio={learnRatio} onBroken={markBroken} style={fill} />
         <div
           style={{
             position: 'absolute',
@@ -348,7 +387,7 @@ function StoryPanel(props: StoryProps) {
     const rest = side ? { w: w - photo.w, h } : { w, h: h - photo.h };
     return (
       <div style={{ display: 'flex', flexDirection: side ? 'row' : 'column', width: '100%', height: '100%' }}>
-        <Photo image={image} onBroken={markBroken} style={{ flex: 'none', width: photo.w, height: photo.h }} />
+        <Photo image={image} fit={cfg.photoFit} onRatio={learnRatio} onBroken={markBroken} style={{ flex: 'none', width: photo.w, height: photo.h }} />
         <div style={{ flex: '1 1 0', minWidth: 0, minHeight: 0 }}>
           <StoryText {...props} w={rest.w} h={rest.h} />
         </div>

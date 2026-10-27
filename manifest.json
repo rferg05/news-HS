@@ -1,7 +1,7 @@
 {
   "id": "news-feed",
   "name": "News",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "One news story at a time, large enough to read across the room: The Atlantic, Ground News (with its Left / Center / Right coverage bar and Blindspots) and other publishers, taking turns, each with a QR code that opens the story on a phone.",
   "author": "Ryan",
   "license": "MIT",
@@ -16,6 +16,7 @@
     "publishers": [],
     "rotateSeconds": 20,
     "photo": "auto",
+    "photoFit": "whole",
     "summarySentences": 2,
     "coverageBar": true,
     "maxAgeHours": 72,
@@ -84,9 +85,18 @@
       "photo": {
         "type": "string",
         "title": "Story photo",
-        "description": "Automatic puts the photo beside the text in a wide module and above it in a tall one.",
+        "description": "Automatic puts each photo beside or above the text, whichever shows it larger, and sizes its space to the photo's shape.",
         "enum": ["auto", "side", "top", "background", "off"],
         "enumLabels": ["Automatic", "Beside the text", "Above the text", "Behind the text", "No photos"],
+        "ui:widget": "select",
+        "ui:group": "Display"
+      },
+      "photoFit": {
+        "type": "string",
+        "title": "Photo fit",
+        "description": "Whole: never crops; any space the photo leaves is filled with a blurred copy of it. Fill: crops the edges to fill its space.",
+        "enum": ["whole", "fill"],
+        "enumLabels": ["Show the whole photo", "Fill the space (crops edges)"],
         "ui:widget": "select",
         "ui:group": "Display"
       },

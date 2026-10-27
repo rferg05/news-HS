@@ -12,6 +12,7 @@ import { readConfig } from '../src/config';
 import { groundTopicSlug, groundTopicSource } from '../src/sources';
 import { cleanUrl, firstSentences, htmlToText } from '../src/text';
 import { qrFor } from '../src/qr';
+import { arrange, photoSize } from '../src/layout';
 
 const fixture = (name: string) => readFileSync(join(__dirname, 'fixtures', name), 'utf8');
 const sane = (s: Story) => {
@@ -212,5 +213,27 @@ describe('QR codes', () => {
       }
     }
     expect(jsQR(data, side, side)?.data).toBe(url);
+  });
+});
+
+describe('photo layout', () => {
+  it('shapes the frame to the photo', () => {
+    // A 3:2 photo beside the text in a 1800x360 strip: full height, its own width.
+    expect(photoSize('side', 1800, 360, 1.5)).toEqual({ w: 540, h: 360 });
+    // A portrait photo beside the text keeps its shape too.
+    expect(photoSize('side', 960, 540, 0.75)).toEqual({ w: 405, h: 540 });
+    // Above the text in a tall panel: full width, the height the photo needs.
+    expect(photoSize('top', 540, 960, 1.5)).toEqual({ w: 540, h: 360 });
+  });
+  it('never gives the photo more than half the panel', () => {
+    expect(photoSize('side', 960, 540, 1.78).w).toBe(480);
+    expect(photoSize('top', 540, 960, 0.5).h).toBe(480);
+  });
+  it('puts each photo where it shows largest', () => {
+    expect(arrange('auto', 960, 540, true, 1.5)).toBe('side');
+    expect(arrange('auto', 540, 960, true, 1.5)).toBe('top');
+    expect(arrange('auto', 600, 600, true, 1.78)).toBe('top');
+    expect(arrange('auto', 600, 600, true, 0.75)).toBe('side');
+    expect(arrange('auto', 1250, 250, true, 1.5)).toBe('none');
   });
 });

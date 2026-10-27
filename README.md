@@ -12,7 +12,7 @@ Stories change on a timer, crossfading. **Sources take turns**: the first story 
 
 Text grows to fill the module. When a story would only fit with text smaller than 1.5 times the module's Text size, its summary loses sentences, down to the headline alone, so the headline stays large. Fewer summary sentences means larger text.
 
-The photo goes beside the text in a wide module and above it in a tall one (or always beside, above, behind the text, or not at all). A box under 260 px on its short side shows text only. Stories without a usable photo (CBS, ESPN, AP and Reuters send none, or only tiny thumbnails) show as large text.
+Each photo's space is shaped to the photo itself and placed beside or above the text, whichever shows that photo larger (or always beside, above, behind the text, or not at all), taking at most half the module. By default the whole photo shows, never cropped; if it doesn't fill its space exactly, a blurred copy of it fills the rest. A box under 260 px on its short side shows text only. Stories without a usable photo (CBS, ESPN, AP and Reuters send none, or only tiny thumbnails) show as large text.
 
 ## Sources
 
@@ -48,6 +48,7 @@ No account or key is needed.
 | Other publishers | none | |
 | Next story every | 20 s | |
 | Story photo | Automatic | Beside the text, above it, behind it, or none. |
+| Photo fit | Show the whole photo | Or fill the space, cropping the edges. |
 | Summary sentences | 2 | 0 shows the headline alone. |
 | Ground News coverage bar | on | |
 | Hide stories older than | 72 hours | 0 keeps any age. The Atlantic's sections publish a few stories a day. |

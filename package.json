@@ -1,6 +1,6 @@
 {
   "name": "news-feed",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Home Screens plugin: one news story at a time, large enough to read across the room, from The Atlantic, Ground News (with its coverage bias bar) and other publishers, each with a QR code to the story",
   "license": "MIT",
   "scripts": {

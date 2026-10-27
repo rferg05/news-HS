@@ -2,6 +2,7 @@ import { atlanticSource, groundSource, groundTopicSource, publisherSource } from
 import type { Source } from './sources';
 
 export type PhotoLayout = 'auto' | 'side' | 'top' | 'background' | 'off';
+export type PhotoFit = 'whole' | 'fill';
 export type QrSize = 'small' | 'medium' | 'large';
 
 export interface Config {
@@ -9,6 +10,7 @@ export interface Config {
   sources: Source[];
   rotateSeconds: number;
   photo: PhotoLayout;
+  photoFit: PhotoFit;
   summarySentences: number;
   coverageBar: boolean;
   /** 0 keeps stories of any age. */
@@ -50,6 +52,7 @@ export function readConfig(raw: Record<string, unknown>): Config {
     sources: sources.filter((s, i) => sources.findIndex((o) => o.id === s.id) === i),
     rotateSeconds: num(raw.rotateSeconds, 20, 5, 600),
     photo: pick(raw.photo, ['auto', 'side', 'top', 'background', 'off'] as const, 'auto'),
+    photoFit: pick(raw.photoFit, ['whole', 'fill'] as const, 'whole'),
     summarySentences: Math.round(num(raw.summarySentences, 2, 0, 6)),
     coverageBar: bool(raw.coverageBar, true),
     maxAgeHours: Math.round(num(raw.maxAgeHours, 72, 0, 168)),

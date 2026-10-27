@@ -8,6 +8,12 @@ const SAFETY = 0.995;
 const TOLERANCE = 0.02;
 /** Hard cap on measure/correct rounds per content change. */
 const MAX_STEPS = 8;
+/** Restarts for a resized box allowed within RESIZE_WINDOW_MS. A box whose
+ *  size depends on the font size would otherwise restart the fit forever
+ *  (each size it tries resizes the box), freezing the page; past this the fit
+ *  keeps the size it has. Someone dragging the module's size is far slower. */
+const MAX_RESIZES = 6;
+const RESIZE_WINDOW_MS = 1000;
 
 /** How far the box, or any `[data-fit]` region inside it, overflows: 1 when
  *  nothing does, else the worst client/scroll ratio. The regions matter in the
@@ -47,6 +53,7 @@ export function useFitFontSize(desired: number, resetKey: string): {
   settled: boolean;
 } {
   const boxRef = useRef<HTMLDivElement>(null);
+  const resizes = useRef<number[]>([]);
   // `lo` is the largest scale measured to fit, `hi` the smallest measured not to.
   const [fit, setFit] = useState({ key: '', box: '', scale: 1, lo: 0, hi: Infinity, steps: 0, done: false });
   const key = `${desired}|${resetKey}`;
@@ -77,7 +84,13 @@ export function useFitFontSize(desired: number, resetKey: string): {
       // A resized box invalidates the bracket: a settled one would otherwise
       // pin the fit forever, since a bigger box can only ever report "fits".
       if (matches && fit.box !== boxKey) {
-        setFit({ key, box: boxKey, scale: 1, lo: 0, hi: Infinity, steps: 0, done: false });
+        const now = Date.now();
+        resizes.current = [...resizes.current.filter((t) => now - t < RESIZE_WINDOW_MS), now];
+        if (resizes.current.length <= MAX_RESIZES) {
+          setFit({ key, box: boxKey, scale: 1, lo: 0, hi: Infinity, steps: 0, done: false });
+        } else if (!fit.done) {
+          setFit({ ...fit, box: boxKey, done: true });
+        }
         return;
       }
 
